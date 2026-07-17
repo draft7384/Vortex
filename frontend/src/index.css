@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-vortex-primary text-white rounded-lg font-medium
+           hover:bg-vortex-secondary transition-all duration-200
+           active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 bg-white border border-slate-300 rounded-lg
+           text-slate-700 placeholder:text-slate-400
+           focus:outline-none focus:ring-2 focus:ring-vortex-primary/20
+           focus:border-vortex-primary transition-all duration-200;
+  }
+}
