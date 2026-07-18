@@ -264,33 +264,33 @@ const Productos: React.FC = () => {
           <table className="w-full">
             <thead className="bg-gradient-to-r from-vortex-primary to-vortex-secondary text-white">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Codigo</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Descripcion</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Unidad</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold">Precio Base</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold">IVA %</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold">Existencia</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold">Tipo</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold">Estado</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold">Acciones</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Codigo</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Descripcion</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Unidad</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">Precio Base</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">IVA %</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">Existencia</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Tipo</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Estado</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center">
+                  <td colSpan={9} className="px-4 py-8 text-center">
                     <div className="flex items-center justify-center gap-3 text-gray-500">
-                      <div className="w-6 h-6 border-2 border-vortex-primary border-t-transparent rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-vortex-primary border-t-transparent rounded-full animate-spin" />
                       Cargando productos...
                     </div>
                   </td>
                 </tr>
               ) : filteredProductos.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center">
+                  <td colSpan={9} className="px-4 py-8 text-center">
                     <div className="flex flex-col items-center gap-3 text-gray-500">
-                      <Package size={48} className="text-gray-300" />
-                      <p>No se encontraron productos</p>
+                      <Package size={40} className="text-gray-300" />
+                      <p className="text-sm">No se encontraron productos</p>
                     </div>
                   </td>
                 </tr>
@@ -300,29 +300,29 @@ const Productos: React.FC = () => {
                     key={producto.id} 
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-6 py-4">
-                      <span className="font-mono text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3">
+                      <span className="font-mono text-xs font-medium text-gray-900">
                         {producto.codigo}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-gray-700">{producto.descripcion}</span>
+                    <td className="px-4 py-3">
+                      <span className="text-xs text-gray-700">{producto.descripcion}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">
                         {producto.unidad_medida || 'UND'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="text-sm font-semibold text-gray-900">
+                    <td className="px-4 py-3 text-right">
+                      <span className="text-xs font-semibold text-gray-900">
                         ${producto.precio_base.toFixed(2)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="text-sm text-gray-600">{producto.impuesto_pct}%</span>
+                    <td className="px-4 py-3 text-right">
+                      <span className="text-xs text-gray-600">{producto.impuesto_pct}%</span>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className={`text-sm font-medium ${
+                    <td className="px-4 py-3 text-right">
+                      <span className={`text-xs font-medium ${
                         producto.existencia <= 5 
                           ? 'text-red-600' 
                           : producto.existencia <= 10 
@@ -332,8 +332,8 @@ const Productos: React.FC = () => {
                         {producto.existencia.toFixed(2)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
                         producto.es_servicio
                           ? 'bg-blue-100 text-blue-700'
                           : 'bg-purple-100 text-purple-700'
@@ -341,8 +341,8 @@ const Productos: React.FC = () => {
                         {producto.es_servicio ? 'Servicio' : 'Producto'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
                         producto.activo
                           ? 'bg-green-100 text-green-700'
                           : 'bg-red-100 text-red-700'
@@ -350,21 +350,21 @@ const Productos: React.FC = () => {
                         {producto.activo ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => handleEdit(producto)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                           title="Editar"
                         >
-                          <Edit size={18} />
+                          <Edit size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(producto.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                           title="Desactivar"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>
