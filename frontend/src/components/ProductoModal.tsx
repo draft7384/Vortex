@@ -136,45 +136,45 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
       <div className={`
         fixed top-0 right-0 h-full w-full max-w-md 
         bg-gradient-to-b from-white to-gray-50 
-        shadow-2xl z-50 transform transition-transform duration-300 ease-in-out
+        shadow-2xl z-50 transform transition-all duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
         {/* Header */}
-        <div className="bg-gradient-to-r from-vortex-primary to-vortex-secondary p-5 text-white">
+        <div className="bg-gradient-to-r from-vortex-primary to-vortex-secondary p-4 text-white">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                <Package size={24} />
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
+                <Package size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-bold">
+                <h2 className="text-lg font-bold">
                   {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
                 </h2>
-                <p className="text-sm text-white/80">
+                <p className="text-xs text-white/80">
                   {isEditing ? 'Actualiza la informacion' : 'Registra un nuevo producto o servicio'}
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200"
+              className="p-1.5 hover:bg-white/20 rounded-lg transition-colors duration-200"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="p-5 h-[calc(100vh-140px)] overflow-y-auto">
-          <div className="space-y-5">
+        <form onSubmit={handleSubmit} className="p-4 flex flex-col h-[calc(100vh-80px)]">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1">
             {/* Seccion 1: Informacion Basica */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-3">
-                <Package size={18} className="text-vortex-primary" />
-                <h3 className="font-semibold text-gray-800">Informacion del Producto</h3>
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100">
+              <div className="flex items-center gap-2 mb-2">
+                <Package size={16} className="text-vortex-primary" />
+                <h3 className="font-semibold text-gray-800 text-sm">Informacion del Producto</h3>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Codigo <span className="text-red-500">*</span>
@@ -183,14 +183,14 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
                     type="text"
                     value={formData.codigo}
                     onChange={(e) => handleChange('codigo', e.target.value)}
-                    className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all ${
+                    className={`w-full px-2.5 py-1.5 text-xs border rounded-md focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all ${
                       errors.codigo ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder="Ej: PROD001"
                   />
                   {errors.codigo && (
-                    <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.codigo}
+                    <p className="mt-0.5 text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle size={10} /> {errors.codigo}
                     </p>
                   )}
                 </div>
@@ -203,14 +203,14 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
                     value={formData.descripcion}
                     onChange={(e) => handleChange('descripcion', e.target.value)}
                     rows={2}
-                    className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all resize-none ${
+                    className={`w-full px-2.5 py-1.5 text-xs border rounded-md focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all resize-none ${
                       errors.descripcion ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
-                    placeholder="Descripcion detallada del producto"
+                    placeholder="Descripcion detallada"
                   />
                   {errors.descripcion && (
-                    <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.descripcion}
+                    <p className="mt-0.5 text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle size={10} /> {errors.descripcion}
                     </p>
                   )}
                 </div>
@@ -222,7 +222,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
                   <select
                     value={formData.unidad_medida}
                     onChange={(e) => handleChange('unidad_medida', e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all"
+                    className="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all"
                   >
                     <option value="UND">Unidades (UND)</option>
                     <option value="HRS">Horas (HRS)</option>
@@ -238,34 +238,34 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
             </div>
 
             {/* Seccion 2: Precios e Impuestos */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-3">
-                <CheckCircle size={18} className="text-vortex-primary" />
-                <h3 className="font-semibold text-gray-800">Precios e Impuestos</h3>
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle size={16} className="text-vortex-primary" />
+                <h3 className="font-semibold text-gray-800 text-sm">Precios e Impuestos</h3>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Precio Base <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs">$</span>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       value={formData.precio_base}
                       onChange={(e) => handleChange('precio_base', e.target.value)}
-                      className={`w-full pl-7 pr-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all ${
+                      className={`w-full pl-6 pr-2.5 py-1.5 text-xs border rounded-md focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all ${
                         errors.precio_base ? 'border-red-500 bg-red-50' : 'border-gray-300'
                       }`}
                       placeholder="0.00"
                     />
                   </div>
                   {errors.precio_base && (
-                    <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.precio_base}
+                    <p className="mt-0.5 text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle size={10} /> {errors.precio_base}
                     </p>
                   )}
                 </div>
@@ -281,13 +281,13 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
                     max="100"
                     value={formData.impuesto_pct}
                     onChange={(e) => handleChange('impuesto_pct', parseFloat(e.target.value))}
-                    className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all ${
+                    className={`w-full px-2.5 py-1.5 text-xs border rounded-md focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all ${
                       errors.impuesto_pct ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   />
                   {errors.impuesto_pct && (
-                    <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.impuesto_pct}
+                    <p className="mt-0.5 text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle size={10} /> {errors.impuesto_pct}
                     </p>
                   )}
                 </div>
@@ -295,13 +295,13 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
             </div>
 
             {/* Seccion 3: Inventario */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-3">
-                <Package size={18} className="text-vortex-primary" />
-                <h3 className="font-semibold text-gray-800">Inventario</h3>
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100">
+              <div className="flex items-center gap-2 mb-2">
+                <Package size={16} className="text-vortex-primary" />
+                <h3 className="font-semibold text-gray-800 text-sm">Inventario</h3>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Existencia Inicial
@@ -312,33 +312,33 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
                     min="0"
                     value={formData.existencia}
                     onChange={(e) => handleChange('existencia', parseFloat(e.target.value))}
-                    className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all ${
+                    className={`w-full px-2.5 py-1.5 text-xs border rounded-md focus:ring-2 focus:ring-vortex-primary focus:border-transparent transition-all ${
                       errors.existencia ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   />
                   {errors.existencia && (
-                    <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.existencia}
+                    <p className="mt-0.5 text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle size={10} /> {errors.existencia}
                     </p>
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
                   <input
                     type="checkbox"
                     id="es_servicio"
                     checked={formData.es_servicio}
                     onChange={(e) => handleChange('es_servicio', e.target.checked)}
-                    className="w-4 h-4 text-vortex-primary rounded focus:ring-vortex-primary"
+                    className="w-3.5 h-3.5 text-vortex-primary rounded focus:ring-vortex-primary"
                   />
-                  <label htmlFor="es_servicio" className="text-sm text-gray-700 cursor-pointer select-none">
+                  <label htmlFor="es_servicio" className="text-xs text-gray-700 cursor-pointer select-none">
                     Es un servicio (no controla inventario)
                   </label>
                 </div>
                 
                 {formData.es_servicio && (
-                  <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-                    ℹ️ Al marcar esta opcion, el sistema no descontara existencias al facturar este item.
+                  <p className="text-xs text-amber-600 bg-amber-50 p-1.5 rounded border border-amber-200">
+                    ℹ️ No se descontara existencias al facturar.
                   </p>
                 )}
               </div>
@@ -346,12 +346,12 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
           </div>
 
           {/* Botones */}
-          <div className="mt-6 space-y-3">
+          <div className="mt-3 space-y-2 pt-3 border-t border-gray-200">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 bg-gradient-to-r from-vortex-primary to-vortex-secondary 
-                       text-white font-semibold rounded-xl shadow-lg 
+              className="w-full py-2 px-3 bg-gradient-to-r from-vortex-primary to-vortex-secondary 
+                       text-white text-sm font-medium rounded-lg shadow-md 
                        hover:from-vortex-secondary hover:to-vortex-primary 
                        active:scale-[0.98] transition-all duration-200
                        disabled:opacity-50 disabled:cursor-not-allowed
@@ -359,13 +359,13 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Guardando...
                 </>
               ) : (
                 <>
-                  <Save size={18} />
-                  {isEditing ? 'Actualizar Producto' : 'Crear Producto'}
+                  <Save size={16} />
+                  {isEditing ? 'Actualizar' : 'Crear Producto'}
                 </>
               )}
             </button>
@@ -373,7 +373,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-3 px-4 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-300
+              className="w-full py-2 px-3 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300
                        hover:bg-gray-50 active:scale-[0.98] transition-all duration-200"
             >
               Cancelar
