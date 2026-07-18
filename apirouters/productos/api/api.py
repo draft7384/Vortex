@@ -1,7 +1,7 @@
 """
 Capa HTTP del modulo Productos. Todos los endpoints requieren JWT.
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from conex.conn import get_db
@@ -11,6 +11,7 @@ from apirouters.productos.models.models import (
     ProductoUpdateRequest,
 )
 from apirouters.productos.use_case.use_case import ProductosUseCase
+from core.responses import standard_response
 
 
 class ProductosAPI:
@@ -80,3 +81,14 @@ class ProductosAPI:
         _: CurrentUser = Depends(get_current_user),
     ):
         return await ProductosUseCase(db).delete_producto(producto_id)
+
+    @staticmethod
+    @router.post("/import", summary="Importar productos masivamente desde Excel")
+    async def import_productos(
+        file: UploadFile = File(..., description="Archivo Excel (.xlsx)"),
+        db: AsyncSession = Depends(get_db),
+        _: CurrentUser = Depends(get_current_user),
+    ):
+        if not file.filename.endswith(".xlsx"):
+            return standard_response(400, "FORMATO_INVALIDO: solo se permiten archivos .xlsx", None)
+        return await ProductosUseCase(db).import_productos_from_excel(file)

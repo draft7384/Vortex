@@ -121,3 +121,79 @@ class ProductosUseCase:
         except Exception as e:
             await self.db.rollback()
             return standard_response(500, f"Error: {str(e)}", None)
+
+    async def import_productos_from_excel(self, file: UploadFile) -> dict:
+        """Importa productos masivamente desde un archivo Excel."""
+        try:
+            import pandas as pd
+            from io import BytesIO
+            
+            # Leer archivo Excel
+            content = await file.read()
+            df = pd.read_excel(BytesIO(content))
+            
+            # Validar columnas requeridas
+            required_cols = ['codigo', 'descripcion', 'precio_base']
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            if missing_cols:
+                return standard_response(400, f"COLUMNAS_FALTANTES: {', '.join(missing_cols)}", None)
+            
+            total_registros = len(df)
+            exitosos = 0
+            fallidos = 0
+            errores = []
+            
+            for idx, row in df.iterrows():
+                try:
+                    # Validar datos basicos
+                    if not row['codigo'] or not row['descripcion']:
+                        raise ValueError("Codigo y descripcion son requeridos")
+                    if row['precio_base'] < 0:
+                        raise ValueError("Precio base no puede ser negativo")
+                    
+                    # Verificar si ya existe
+                    existing = await self.db.execute(
+                        text(st.SELECT_PRODUCTO_BY_CODIGO), 
+                        {"codigo": str(row['codigo'])}
+                    )
+                    if existing.mappings().first():
+                        raise ValueError(f"Producto con codigo '{row['codigo']}' ya existe")
+                    
+                    # Crear producto
+                    producto_data = {
+                        "codigo": str(row['codigo']),
+                        "descripcion": str(row['descripcion']),
+                        "unidad_medida": str(row.get('unidad_medida', 'UND')),
+                        "precio_base": float(row['precio_base']),
+                        "impuesto_pct": float(row.get('impuesto_pct', 16.0)),
+                        "existencia": float(row.get('existencia', 0.0)),
+                        "es_servicio": bool(row.get('es_servicio', False)),
+                        "activo": True
+                    }
+                    
+                    result = await self.db.execute(text(st.INSERT_PRODUCTO), producto_data)
+                    await self.db.commit()
+                    exitosos += 1
+                    
+                except Exception as e:
+                    fallidos += 1
+                    errores.append({
+                        "fila": idx + 2,  # +2 porque Excel inicia en 1 y hay header
+                        "codigo": row.get('codigo', 'N/A'),
+                        "error": str(e)
+                    })
+                    await self.db.rollback()
+            
+            return standard_response(
+                200,
+                f"Importacion completada: {exitosos} exitosos, {fallidos} fallidos",
+                {
+                    "total_registros": total_registros,
+                    "exitosos": exitosos,
+                    "fallidos": fallidos,
+                    "errores": errores
+                }
+            )
+        except Exception as e:
+            await self.db.rollback()
+            return standard_response(500, f"Error: {str(e)}", None)

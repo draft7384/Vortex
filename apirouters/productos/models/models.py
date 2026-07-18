@@ -2,7 +2,7 @@
 Schemas Pydantic del modulo Productos.
 """
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 
@@ -72,3 +72,22 @@ class ProductoListItem(BaseModel):
     existencia: float
     es_servicio: bool
     activo: bool
+
+
+class ProductoImportItem(BaseModel):
+    """Schema para importacion masiva desde Excel."""
+    codigo: str
+    descripcion: str
+    unidad_medida: Optional[str] = "UND"
+    precio_base: float
+    impuesto_pct: Optional[float] = 16.0
+    existencia: Optional[float] = 0.0
+    es_servicio: Optional[bool] = False
+
+
+class ProductoImportResponse(BaseModel):
+    """Respuesta de importacion masiva."""
+    total_registros: int
+    exitosos: int
+    fallidos: int
+    errores: List[dict]
