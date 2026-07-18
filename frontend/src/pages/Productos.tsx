@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Search, Plus, Edit2, Trash2, ArrowUp, ArrowDown, ArrowUpDown,
-  Upload, Download, Package, Eye, EyeOff, X
+  Upload, Download, Package, Eye, EyeOff, X, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ProductoDrawer from '../components/ProductoModal';
