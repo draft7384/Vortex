@@ -3,7 +3,7 @@ import { Search, Plus, Edit2, Trash2, ChevronLeft, ChevronRight, UserPlus, X, Ar
 import toast from 'react-hot-toast';
 import { useClientes } from '../hooks/useClientes';
 import { clientesApi, type Cliente } from '../api/clientes';
-import ClienteModal from '../components/ClienteModal';
+import ClienteDrawer from '../components/ClienteModal';
 
 const ClientesPage: React.FC = () => {
   const { clientes, loading, total, params, updateParams, fetchClientes } = useClientes();
@@ -397,7 +397,7 @@ const ClientesPage: React.FC = () => {
         </div>
       </div>
 
-      <ClienteModal
+      <ClienteDrawer
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
