@@ -128,7 +128,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
     <>
       {/* Overlay */}
       <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 ease-in-out"
         onClick={onClose}
       />
       
@@ -136,7 +136,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
       <div className={`
         fixed top-0 right-0 h-full w-full max-w-md 
         bg-gradient-to-b from-white to-gray-50 
-        shadow-2xl z-50 transform transition-transform duration-300 ease-out
+        shadow-2xl z-50 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
         {/* Header */}
