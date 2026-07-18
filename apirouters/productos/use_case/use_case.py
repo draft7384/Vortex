@@ -3,6 +3,7 @@ Logica de negocio del modulo Productos.
 """
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import UploadFile
 
 from core.responses import standard_response
 from apirouters.productos.models.models import (
