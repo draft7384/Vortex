@@ -4,8 +4,11 @@ Cada método ejecuta el SQL correspondiente desde statement.py,
 realiza validaciones y maneja la transacción (commit/rollback).
 """
 import re
-from typing import Optional
+from typing import Optional, List
+from io import BytesIO
 
+import pandas as pd
+from openpyxl import load_workbook
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +16,7 @@ from core.responses import standard_response
 from apirouters.clientes.models.models import (
     ClienteCreateRequest,
     ClienteUpdateRequest,
+    ClienteImportItem,
 )
 from apirouters.clientes.statement import statement as st
 
@@ -220,3 +224,129 @@ class ClientesUseCase:
             return standard_response(200, "Saldo pendiente", {"total_pendiente": float(total)})
         except Exception as e:
             return standard_response(500, f"Error: {str(e)}", None)
+
+    # =========================================================
+    # IMPORTACION MASIVA DESDE EXCEL
+    # =========================================================
+    async def import_clientes_from_excel(self, file_bytes: bytes) -> dict:
+        """
+        Importa clientes masivamente desde un archivo Excel.
+        Valida cada fila y crea los clientes válidos.
+        Retorna resumen de éxitos y errores.
+        """
+        errores: List[dict] = []
+        registros_exitosos = 0
+        
+        try:
+            # Leer Excel desde bytes
+            df = pd.read_excel(BytesIO(file_bytes), sheet_name=0, header=0)
+            
+            # Columnas requeridas
+            columnas_requeridas = ['codigo', 'rif', 'nombre_razon_social']
+            for col in columnas_requeridas:
+                if col not in df.columns:
+                    return standard_response(400, f"COLUMNA_FALTANTE: la columna '{col}' es requerida en el Excel", None)
+            
+            total_registros = len(df)
+            
+            for idx, row in df.iterrows():
+                fila_numero = idx + 2  # +2 porque Excel empieza en 1 y hay header
+                
+                try:
+                    # Limpiar datos
+                    codigo = str(row.get('codigo', '')).strip()
+                    rif = str(row.get('rif', '')).strip()
+                    nombre_razon_social = str(row.get('nombre_razon_social', '')).strip()
+                    
+                    # Validaciones básicas
+                    if not codigo:
+                        errores.append({"fila": fila_numero, "error": "Código vacío", "datos": dict(row)})
+                        continue
+                    
+                    if not rif:
+                        errores.append({"fila": fila_numero, "error": "RIF vacío", "datos": dict(row)})
+                        continue
+                    
+                    # Validar formato RIF
+                    if not RIF_VENEZOLANO_REGEX.match(rif):
+                        errores.append({"fila": fila_numero, "error": f"RIF inválido: {rif}", "datos": dict(row)})
+                        continue
+                    
+                    if not nombre_razon_social:
+                        errores.append({"fila": fila_numero, "error": "Nombre/Razón social vacío", "datos": dict(row)})
+                        continue
+                    
+                    # Verificar duplicados en BD
+                    existing = await self.db.execute(text(st.SELECT_CLIENTE_BY_RIF), {"rif": rif})
+                    if existing.mappings().first():
+                        errores.append({"fila": fila_numero, "error": f"RIF duplicado: {rif}", "datos": dict(row)})
+                        continue
+                    
+                    # Verificar código duplicado
+                    existing_codigo = await self.db.execute(
+                        text("SELECT id FROM clientes WHERE codigo = :codigo"),
+                        {"codigo": codigo}
+                    )
+                    if existing_codigo.mappings().first():
+                        errores.append({"fila": fila_numero, "error": f"Código duplicado: {codigo}", "datos": dict(row)})
+                        continue
+                    
+                    # Preparar datos opcionales
+                    direccion = str(row.get('direccion', '')) or None
+                    telefono = str(row.get('telefono', '')) or None
+                    email_val = str(row.get('email', '')) or None
+                    condicion_pago = str(row.get('condicion_pago', 'CONTADO')).upper()
+                    if condicion_pago not in ['CONTADO', 'CREDITO', 'ANTICIPO']:
+                        condicion_pago = 'CONTADO'
+                    
+                    limite_credito = float(row.get('limite_credito', 0) or 0)
+                    regimen_iva = str(row.get('regimen_iva', 'ORDINARIO')).upper()
+                    if regimen_iva not in ['ORDINARIO', 'ESPECIAL']:
+                        regimen_iva = 'ORDINARIO'
+                    
+                    es_contribuyente = bool(row.get('es_contribuyente_especial', False))
+                    numero_contribuyente = str(row.get('numero_contribuyente_especial', '')) or None
+                    moneda_id = int(row.get('moneda_id', 1) or 1)
+                    
+                    # Si es contribuyente especial pero no tiene número, omitir
+                    if es_contribuyente and not numero_contribuyente:
+                        errores.append({"fila": fila_numero, "error": "Contribuyente especial sin número", "datos": dict(row)})
+                        continue
+                    
+                    # Insertar cliente
+                    data = {
+                        "codigo": codigo,
+                        "rif": rif,
+                        "nombre_razon_social": nombre_razon_social,
+                        "direccion": direccion,
+                        "telefono": telefono,
+                        "email": email_val,
+                        "condicion_pago": condicion_pago,
+                        "limite_credito": limite_credito,
+                        "regimen_iva": regimen_iva,
+                        "es_contribuyente_especial": es_contribuyente,
+                        "numero_contribuyente_especial": numero_contribuyente,
+                        "moneda_id": moneda_id,
+                    }
+                    
+                    result = await self.db.execute(text(st.INSERT_CLIENTE), data)
+                    await self.db.commit()
+                    registros_exitosos += 1
+                    
+                except Exception as e:
+                    errores.append({"fila": fila_numero, "error": str(e), "datos": dict(row)})
+                    await self.db.rollback()
+            
+            return standard_response(
+                200,
+                f"Importación completada: {registros_exitosos}/{total_registros} exitosos",
+                {
+                    "total_registros": total_registros,
+                    "registros_exitosos": registros_exitosos,
+                    "registros_fallidos": len(errores),
+                    "errores": errores[:50]  # Limitar a primeros 50 errores
+                }
+            )
+            
+        except Exception as e:
+            return standard_response(500, f"Error al procesar Excel: {str(e)}", None)

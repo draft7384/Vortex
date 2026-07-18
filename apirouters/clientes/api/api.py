@@ -3,7 +3,7 @@ Capa HTTP del modulo Clientes.
 Encapsula el APIRouter y los endpoints. Solo delega al UseCase.
 Todos los endpoints requieren autenticacion (JWT).
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, UploadFile, File
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -80,3 +80,21 @@ class ClientesAPI:
         _: CurrentUser = Depends(get_current_user),
     ):
         return await ClientesUseCase(db).delete_cliente(cliente_id)
+
+    @staticmethod
+    @router.post("/import", summary="Importar clientes masivamente desde Excel")
+    async def import_clientes(
+        file: UploadFile = File(..., description="Archivo Excel (.xlsx) con los clientes"),
+        db: AsyncSession = Depends(get_db),
+        _: CurrentUser = Depends(get_current_user),
+    ):
+        # Validar extensión del archivo
+        if not file.filename.endswith('.xlsx'):
+            return {"status_code": 400, "message": "FORMATO_INVALIDO: solo se permiten archivos .xlsx", "data": None}
+        
+        # Leer contenido del archivo
+        try:
+            contents = await file.read()
+            return await ClientesUseCase(db).import_clientes_from_excel(contents)
+        except Exception as e:
+            return {"status_code": 500, "message": f"ERROR_PROCESAMIENTO: {str(e)}", "data": None}

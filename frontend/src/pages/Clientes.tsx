@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit2, Trash2, ChevronLeft, ChevronRight, UserPlus, X, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Plus, Edit2, Trash2, ChevronLeft, ChevronRight, UserPlus, X, ArrowUp, ArrowDown, ArrowUpDown, Upload, FileSpreadsheet, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useClientes } from '../hooks/useClientes';
 import { clientesApi, type Cliente } from '../api/clientes';
@@ -10,6 +10,7 @@ const ClientesPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [searchTerm, setSearchTerm] = useState(params.search);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Debounce search to avoid API hammering
   useEffect(() => {
@@ -21,6 +22,67 @@ const ClientesPage: React.FC = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar extensión
+    if (!file.name.endsWith('.xlsx')) {
+      toast.error('Formato inválido. Solo se permiten archivos .xlsx');
+      return;
+    }
+
+    // Validar tamaño (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('El archivo es demasiado grande. Máximo 10MB');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      toast.loading('Importando clientes...');
+      const response = await fetch('/api/clientes/import', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      
+      if (result.status_code === 200) {
+        const data = result.data;
+        toast.dismiss();
+        toast.success(`Importación completada: ${data.registros_exitosos}/${data.total_registros} exitosos`);
+        if (data.registros_fallidos > 0) {
+          toast.error(`${data.registros_fallidos} registros fallaron`);
+        }
+        fetchClientes();
+      } else {
+        toast.dismiss();
+        toast.error(result.message || 'Error al importar clientes');
+      }
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error(error.message || 'Error al importar clientes');
+    }
+
+    // Resetear input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const downloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = '/plantilla_clientes.xlsx';
+    link.download = 'plantilla_clientes.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Plantilla descargada');
+  };
 
   const handleCreate = async (data: any) => {
     try {
@@ -114,13 +176,36 @@ const ClientesPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Gestión de Clientes</h1>
           <p className="text-slate-500 text-sm">Administra la información de tus clientes y sus límites de crédito.</p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="flex items-center justify-center space-x-2 px-4 py-2 bg-vortex-primary text-white rounded-lg font-bold hover:bg-vortex-secondary transition-all shadow-md shadow-vortex-primary/20 active:scale-95"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span className="text-sm">Nuevo Cliente</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+          <button
+            onClick={downloadTemplate}
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-white text-vortex-primary border border-vortex-primary rounded-lg font-bold hover:bg-vortex-primary/10 transition-all shadow-sm active:scale-95"
+          >
+            <Download className="w-4 h-4" />
+            <span className="text-sm">Plantilla</span>
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-all shadow-md shadow-emerald-600/20 active:scale-95"
+          >
+            <Upload className="w-4 h-4" />
+            <span className="text-sm">Importar Excel</span>
+          </button>
+          <button
+            onClick={openCreateModal}
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-vortex-primary text-white rounded-lg font-bold hover:bg-vortex-secondary transition-all shadow-md shadow-vortex-primary/20 active:scale-95"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span className="text-sm">Nuevo Cliente</span>
+          </button>
+        </div>
       </div>
 
       {/* Filters & Search */}

@@ -3,7 +3,7 @@ Schemas Pydantic (entrada y salida) del módulo Clientes.
 NO usamos ORM: estos modelos validan payloads y dan forma a las respuestas.
 """
 from pydantic import BaseModel, Field, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 
@@ -40,6 +40,30 @@ class ClienteUpdateRequest(BaseModel):
     numero_contribuyente_especial: Optional[str] = None
     moneda_id: Optional[int] = None
     activo: Optional[bool] = None
+
+
+class ClienteImportItem(BaseModel):
+    """Item individual para importación masiva desde Excel."""
+    codigo: str = Field(..., min_length=1, max_length=20)
+    rif: str = Field(..., min_length=4, max_length=20)
+    nombre_razon_social: str = Field(..., min_length=1, max_length=255)
+    direccion: Optional[str] = None
+    telefono: Optional[str] = None
+    email: Optional[str] = None
+    condicion_pago: str = Field("CONTADO", description="CONTADO | CREDITO | ANTICIPO")
+    limite_credito: float = Field(0.00, ge=0)
+    regimen_iva: str = Field("ORDINARIO", description="ORDINARIO | ESPECIAL")
+    es_contribuyente_especial: bool = False
+    numero_contribuyente_especial: Optional[str] = None
+    moneda_id: Optional[int] = None
+
+
+class ClienteImportResponse(BaseModel):
+    """Respuesta de importación masiva."""
+    total_registros: int
+    registros_exitosos: int
+    registros_fallidos: int
+    errores: List[dict] = []
 
 
 # ============== RESPONSE (salida) ==============
